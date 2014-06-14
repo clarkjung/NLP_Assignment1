@@ -47,7 +47,7 @@ public class Perplexity {
             String token = tokenizer.nextToken();
             sentenceLength++;
         }
-        
+		
         return sentenceLength;
 	}
 	

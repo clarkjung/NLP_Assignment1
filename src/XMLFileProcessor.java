@@ -1,4 +1,6 @@
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -13,6 +15,75 @@ public class XMLFileProcessor {
 	// constructor
 	public XMLFileProcessor() {
 	}
+	
+	public void makeHashMap(UnigramTask2 unigramTask2, BigramTask2 bigramTask2, String filepath) {
+		
+		try {
+
+			File stocks = new File(filepath);
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory
+					.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.parse(stocks);
+			doc.getDocumentElement().normalize();
+			
+			String previousTag = "";
+			String currentTag = "";
+
+			//System.out.println("root of xml file" + doc.getDocumentElement().getNodeName());
+			NodeList nodes = doc.getElementsByTagName("sentence");
+			//System.out.println("==========================");
+			
+			for (int i = 0; i < nodes.getLength(); i++) {
+
+				//System.out.println("========== sentence number : " + i + "==========");
+
+				Node node = nodes.item(i);
+
+				if (node.getNodeType() == Node.ELEMENT_NODE) {
+					Element element = (Element) node;
+
+					NodeList tokList = element.getElementsByTagName("tok");
+
+					for (int j = 0; j < tokList.getLength(); j++) {
+						Node tokNode = tokList.item(j);
+
+						if (tokNode.getNodeType() == Node.ELEMENT_NODE) {
+							Element tokElement = (Element) tokNode;
+							currentTag = tokElement.getAttribute("cat");
+							
+							//process start-sentence-tag "<S>"
+							if (j == 0) {
+								//add to Unigram
+								//String startString = "<S>";
+								//System.out.print(startString + " ");
+								unigramTask2.addTag("START", "<S>");
+							}
+							//add to Unigram
+							//System.out.print(currentString + " ");
+							unigramTask2.addTag(currentTag, tokElement.getTextContent().toLowerCase());
+							
+							
+							//add to Bigram
+							if(j==0){
+								bigramTask2.addTag(currentTag, "<S>");
+							}else{
+								bigramTask2.addTag(currentTag, previousTag);
+							}
+							
+							previousTag = currentTag;
+						}
+					}
+				}
+				
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
+	}
+	
+	
 
 	public void makeHashMap(Unigram unigram, Bigram bigram, String filepath) {
 
@@ -103,6 +174,78 @@ public class XMLFileProcessor {
 				String extractedSentence = node.getTextContent();
 				perplexityCalculator.calculate(unigram, bigram, extractedSentence);
 
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	public void extractSentences(UnigramTask2 unigramTask2, BigramTask2 bigramTask2, String filepath, Precision precision){
+		try {
+
+			File stocks = new File(filepath);
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory
+					.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.parse(stocks);
+			doc.getDocumentElement().normalize();
+			
+			Set<String> tagSet = bigramTask2.getTagSet();
+			
+			String currentTag = "";
+			String previousGuessTag = "";
+			ArrayList<String> answerList = new ArrayList<String>();
+			ArrayList<String> guessList = new ArrayList<String>();
+
+			//System.out.println("root of xml file" + doc.getDocumentElement().getNodeName());
+			NodeList nodes = doc.getElementsByTagName("sentence");
+			//System.out.println("==========================");
+			
+			for (int i = 0; i < nodes.getLength(); i++) {
+
+				//System.out.println("========== sentence number : " + i + "==========");
+
+				Node node = nodes.item(i);
+
+				if (node.getNodeType() == Node.ELEMENT_NODE) {
+					Element element = (Element) node;
+
+					NodeList tokList = element.getElementsByTagName("tok");
+
+					for (int j = 0; j < tokList.getLength(); j++) {
+						Node tokNode = tokList.item(j);
+
+						if (tokNode.getNodeType() == Node.ELEMENT_NODE) {
+							
+							Element tokElement = (Element) tokNode;
+							currentTag = tokElement.getAttribute("cat");
+							
+							//save currentTag with answerList
+							answerList.add(currentTag);
+							
+							if(j==0) previousGuessTag = "START";
+							
+							String currentGuessTag = precision.findHighestPossibilityTag(unigramTask2, bigramTask2, previousGuessTag, tokElement.getTextContent(), tagSet);
+							
+							//find the tag with the highest possibility and put it into guessList
+							guessList.add(currentGuessTag);
+							
+							previousGuessTag = currentGuessTag;
+							
+						}
+					}//finish one sentence
+					
+					//calculate precision of this sentence (arrraylist1, arraylist2)
+					//insert to precision
+					precision.addToPrecisionList(precision.calculatePrecision(answerList, guessList));
+					
+					//clear answerList and guessList
+					answerList.clear();
+					guessList.clear();
+					
+					
+				}
+				
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
