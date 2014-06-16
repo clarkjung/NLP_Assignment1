@@ -1,5 +1,9 @@
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 
 public class UnigramTask2 {
@@ -100,7 +104,7 @@ public class UnigramTask2 {
 			}
 			
 			unigramSizeHashMap.put(key1, sum);
-			
+
 		}
 		
 	}
@@ -111,8 +115,42 @@ public class UnigramTask2 {
 			if(unigramHashMap.get(tag).containsKey(text)) return unigramHashMap.get(tag).get(text);
 			else return 0;
 		}
+		
 		else return 0;
 	}
+	
+	public boolean containsText(String text){
+		
+		Iterator<String> keySetIterator = unigramHashMap.keySet().iterator();
+		while(keySetIterator.hasNext()){
+			String key = keySetIterator.next();
+			if(unigramHashMap.get(key).containsKey(text)) return true;
+		}
+		
+		return false;
+		
+	}
+	
+	public Set<String> findSet(String text){
+		
+		Set<String> set = new HashSet<String>();
+		
+		Iterator<String> keySetIterator = unigramHashMap.keySet().iterator();
+		while(keySetIterator.hasNext()){
+			String key = keySetIterator.next();
+			if(unigramHashMap.get(key).containsKey(text)) set.add(key);
+		}
+		
+		return set;
+		
+	}
+	
+	public Set<String> getTagSet(){
+		return unigramHashMap.keySet();
+	}
+	
+	
+	
 
 	
 }

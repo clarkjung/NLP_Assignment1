@@ -44,8 +44,10 @@ public class Precision {
 		//debug
 		System.out.println("hit: " + hit);
 		System.out.println("sizeofsentence: " + sizeOfSentence);
+		System.out.println("precision: " + hit/sizeOfSentence);
 		
-		return hit/sizeOfSentence;
+		//2 means the start and the end of sentence. 
+		return (hit+2)/(sizeOfSentence+2);
 		
 	}
 	
@@ -57,20 +59,28 @@ public class Precision {
 		
 		double highestTwoPossibilities = 0.0;
 		String highestPossibilityTag = "";
+		int count = 0;
+		
+		Set<String> foundSet = unigramTask2.findSet(text);
+		if(!foundSet.isEmpty()) tagSet = foundSet;
 		
 		Iterator<String> iterator = tagSet.iterator();
 		while(iterator.hasNext()){
 			String setElement = iterator.next();
 			
-			double wordLikelyhoodProbabilityForThisSetElementNumerator = unigramTask2.getUnigramTagStringValue(setElement, text);
-			double wordLikelyhoodProbabilityForThisSetElementDenominator = unigramTask2.getUnigramTagSize(setElement);
-			double tagTransitionProbabilityForThisSetElementNumerator = bigramTask2.getBigramTagPreviousTagValue(setElement, previousTag);
-			double tagTransitionProbabilityForThisSetElementDenominator = unigramTask2.getUnigramTagSize(previousTag);
+			double wordLikelyhoodProbabilityForThisSetElementNumerator = unigramTask2.getUnigramTagStringValue(setElement, text) +1 ;
+			double wordLikelyhoodProbabilityForThisSetElementDenominator = unigramTask2.getUnigramTagSize(setElement) +42 ;
+			double tagTransitionProbabilityForThisSetElementNumerator = bigramTask2.getBigramTagPreviousTagValue(setElement, previousTag) +1 ;
+			double tagTransitionProbabilityForThisSetElementDenominator = bigramTask2.getBigramPreviousTagSize(previousTag) + 42 ;
+//			System.out.println("++++++++++++++");
+//			System.out.println(unigramTask2.containsText(text) + ", setElement: " + setElement);
+//			System.out.println(wordLikelyhoodProbabilityForThisSetElementNumerator);
+//			System.out.println(wordLikelyhoodProbabilityForThisSetElementDenominator);
+//			System.out.println(tagTransitionProbabilityForThisSetElementNumerator);
+//			System.out.println(tagTransitionProbabilityForThisSetElementDenominator);
 			
 			double wordLikelyhoodProbabilityForThisSetElement = wordLikelyhoodProbabilityForThisSetElementNumerator/wordLikelyhoodProbabilityForThisSetElementDenominator;
 			double tagTransitionProbabilityForThisSetElement = tagTransitionProbabilityForThisSetElementNumerator/tagTransitionProbabilityForThisSetElementDenominator;
-			//double wordLikelyhoodProbabilityForThisSetElement = unigramTask2.getUnigramTagStringValue(setElement, text)/unigramTask2.getUnigramTagSize(setElement);
-			//double tagTransitionProbabilityForThisSetElement = bigramTask2.getBigramTagPreviousTagValue(setElement, previousTag)/unigramTask2.getUnigramTagSize(previousTag);
 			
 			double twoPossibilities = wordLikelyhoodProbabilityForThisSetElement * tagTransitionProbabilityForThisSetElement;
 			

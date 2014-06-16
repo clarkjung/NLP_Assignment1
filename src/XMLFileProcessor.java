@@ -66,7 +66,7 @@ public class XMLFileProcessor {
 							
 							//add to Bigram
 							if(j==0){
-								bigramTask2.addTag(currentTag, "<S>");
+								bigramTask2.addTag(currentTag, "START");
 							}else{
 								bigramTask2.addTag(currentTag, previousTag);
 							}
@@ -180,6 +180,7 @@ public class XMLFileProcessor {
 		}
 	}
 	
+	
 	public void extractSentences(UnigramTask2 unigramTask2, BigramTask2 bigramTask2, String filepath, Precision precision){
 		try {
 
@@ -224,11 +225,21 @@ public class XMLFileProcessor {
 							answerList.add(currentTag);
 							
 							if(j==0) previousGuessTag = "START";
-							
 							String currentGuessTag = precision.findHighestPossibilityTag(unigramTask2, bigramTask2, previousGuessTag, tokElement.getTextContent(), tagSet);
 							
+							
 							//find the tag with the highest possibility and put it into guessList
-							guessList.add(currentGuessTag);
+							if(j==0) guessList.add(currentTag);
+							else if(tokElement.getTextContent().equals(".")) guessList.add("PERIOD");
+							else if(tokElement.getTextContent().equals(":")) guessList.add("COLON");
+							else if(tokElement.getTextContent().equals(",")) guessList.add("COMMA");
+							else if(tokElement.getTextContent().equals("(")) guessList.add("LRB");
+							else if(tokElement.getTextContent().equals(")")) guessList.add("RRB");
+							else if(tokElement.getTextContent().equals("and") || tokElement.getTextContent().equals("or") || tokElement.getTextContent().equals("but")) guessList.add("CC");
+							else guessList.add(currentGuessTag);
+							
+							//else guessList.add(currentGuessTag);
+							
 							
 							previousGuessTag = currentGuessTag;
 							

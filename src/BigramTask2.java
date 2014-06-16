@@ -70,6 +70,22 @@ private HashMap<String, HashMap<String, Integer> > bigramHashMap;
 		
 	}
 	
+	public int getBigramPreviousTagSize(String tag){
+		
+		int sum = 0;
+		
+		Iterator<String> keySetIterator = bigramHashMap.keySet().iterator();
+		while(keySetIterator.hasNext()){
+			String key = keySetIterator.next();
+			
+			if(bigramHashMap.get(key).containsKey(tag)) sum += bigramHashMap.get(key).get(tag);
+			
+		}
+		
+		return sum;
+		
+	}
+	
 	public int getBigramTagPreviousTagValue(String tag, String previousTag){
 		if(bigramHashMap.containsKey(tag)){
 			if(bigramHashMap.get(tag).containsKey(previousTag)) return bigramHashMap.get(tag).get(previousTag);

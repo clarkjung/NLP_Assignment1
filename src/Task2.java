@@ -46,12 +46,13 @@ public class Task2 {
 		
 		System.out.println("training done!");
 		//System.out.println(task2.bigramTask2.getTagSet());
+		//System.out.println(task2.unigramTask2.getTagSet());
 		//task2.unigramTask2.printUnigramSizeHashMap();
 		
 		task2.test();
 		System.out.println("test done!");
 		
-		//System.out.println(task2.precision.printPrecisionList());
+		System.out.println(task2.precision.printPrecisionList());
 		System.out.println("precision: " + task2.precision.getPrecision());
 
 
